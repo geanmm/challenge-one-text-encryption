@@ -5,10 +5,8 @@ const elements = {
   outputArea: document.querySelector(".container__output"),
 };
 
-elements.cryptoButton.onclick = () => {
-  console.log("a");
-  displayOutputContent("crypt");
-};
+elements.cryptoButton.onclick = () => displayOutputContent("crypt");
+
 elements.decryptoButton.onclick = () => displayOutputContent("decrypt");
 
 function handleEncryption(text) {
