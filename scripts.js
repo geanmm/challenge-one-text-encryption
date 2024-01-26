@@ -1,13 +1,17 @@
 const elements = {
-  textContent: document.querySelector("textarea[name='text_input']"),
+  textContent: document.querySelector(".text_input"),
   cryptoButton: document.querySelector("#encrypt-button"),
   decryptoButton: document.querySelector("#decrypt-button"),
   outputArea: document.querySelector(".container__output"),
+  popUpAlert: document.querySelector(".modal__alert"),
 };
 
-elements.cryptoButton.onclick = () => displayOutputContent("crypt");
-
-elements.decryptoButton.onclick = () => displayOutputContent("decrypt");
+elements.cryptoButton.addEventListener("click", () =>
+  displayOutputContent("crypt")
+);
+elements.decryptoButton.addEventListener("click", () =>
+  displayOutputContent("decrypt")
+);
 
 function handleEncryption(text) {
   let encryptedText = text
@@ -31,9 +35,16 @@ function handleDecryption(text) {
   return decryptedText;
 }
 
+function isInputValid(text) {
+  const regex = /[^a-z\s]/gi;
+  if (text == text.toLowerCase() && !regex.test(text)) return true;
+  else return false;
+}
+
 function displayOutputContent(action) {
   let text = elements.textContent.value;
   if (text == "") return;
+  if (!isInputValid(text)) return displayAlert();
 
   const outputContent = document.createElement("textarea");
   outputContent.className = "output__content";
@@ -54,4 +65,15 @@ function displayOutputContent(action) {
 
   elements.outputArea.innerHTML = "";
   elements.outputArea.append(outputContent, copyButton);
+}
+
+function displayAlert() {
+  const alert = document.createElement("div");
+  alert.className = "modal__alert";
+  alert.innerText = "Campo de texto inválido";
+
+  const container = document.querySelector(".modal__container");
+  container.appendChild(alert);
+
+  setTimeout(() => container.removeChild(alert), 3000);
 }
