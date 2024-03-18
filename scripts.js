@@ -3,7 +3,6 @@ const elements = {
   cryptoButton: document.querySelector("#encrypt-button"),
   decryptoButton: document.querySelector("#decrypt-button"),
   outputArea: document.querySelector(".container__output"),
-  popUpAlert: document.querySelector(".modal__alert"),
 };
 
 elements.cryptoButton.addEventListener("click", () =>
@@ -43,8 +42,8 @@ function isInputValid(text) {
 
 function displayOutputContent(action) {
   let text = elements.textContent.value;
-  if (text == "") return;
-  if (!isInputValid(text)) return displayAlert();
+  if (text == "") return displayAlert("Campo de texto vazio", 0);
+  if (!isInputValid(text)) return displayAlert("Campo de texto inválido", -1);
 
   const outputContent = document.createElement("textarea");
   outputContent.className = "output__content";
@@ -57,23 +56,56 @@ function displayOutputContent(action) {
 
   if (action == "crypt") {
     outputContent.value = handleEncryption(text);
+    displayAlert("Criptografia concluida", 1);
   } else if (action == "decrypt") {
     outputContent.value = handleDecryption(text);
+    displayAlert("Descriptografia concluida", 2);
   }
 
-  copyButton.onclick = () => navigator.clipboard.writeText(outputContent.value);
+  copyButton.addEventListener("click", () => {
+    console.log(document.querySelector(".output__content"));
+    navigator.clipboard.writeText(outputContent.value);
+    displayAlert("Copiado para área de transferência", 3);
+  });
 
   elements.outputArea.innerHTML = "";
   elements.outputArea.append(outputContent, copyButton);
 }
 
-function displayAlert() {
+let lastType = 0;
+
+function displayAlert(text, type) {
+  if (document.querySelector(".modal__alert") && lastType == type) return;
+  if (document.querySelectorAll(".modal__alert"))
+    document.querySelectorAll(".modal__alert").forEach(removeAlert);
+
   const alert = document.createElement("div");
   alert.className = "modal__alert";
-  alert.innerText = "Campo de texto inválido";
+  alert.classList.add(
+    (type == -1 && "error") || (type == 0 && "attention") || "sucess"
+  );
+  lastType = type;
 
-  const container = document.querySelector(".modal__container");
-  container.appendChild(alert);
+  const alertText = document.createElement("span");
+  alertText.textContent = text;
 
-  setTimeout(() => container.removeChild(alert), 3000);
+  const alertClose = document.createElement("span");
+  alertClose.textContent = "✕";
+  alertClose.addEventListener("click", () => removeAlert(alert));
+
+  alert.append(alertText, alertClose);
+
+  document.body.appendChild(alert);
+
+  setTimeout(() => {
+    if (alert) removeAlert(alert);
+  }, 4000);
+}
+
+function removeAlert(modal) {
+  if (!document.body.contains(modal)) return;
+  modal.style.opacity = 0;
+  setTimeout(() => {
+    document.body.removeChild(modal);
+  }, 300);
 }
